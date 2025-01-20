@@ -1,2 +1,1 @@
-require('plugins')
-vim.cmd 'PackerInstall'
+require('adam')
