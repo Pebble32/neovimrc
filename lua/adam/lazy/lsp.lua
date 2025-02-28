@@ -26,12 +26,15 @@ return {
         require("mason").setup()
         require("mason-lspconfig").setup({
             ensure_installed = {
-                "lua_ls",
-                "rust_analyzer",
+                "lua_ls", -- Lua
+                "rust_analyzer", -- Rust
+                "pyright", -- Python
+                "gopls", -- Go
+                -- "clangd" -- C/C++
+                -- "jdtls", -- Java
             },
             handlers = {
                 function(server_name) -- default handler (optional)
-
                     require("lspconfig")[server_name].setup {
                         capabilities = capabilities
                     }
