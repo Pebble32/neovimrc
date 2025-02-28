@@ -56,6 +56,31 @@ return {
             }
         })
 
+        local function on_attach(client, bufnr)
+            local opts = { buffer = bufnr, silent = true, noremap = true }
+
+            -- LSP Navigation
+            vim.keymap.set("n", "gd", vim.lsp.buf.definition, opts) -- Go to definition
+            vim.keymap.set("n", "gD", vim.lsp.buf.declaration, opts) -- Go to declaration
+            vim.keymap.set("n", "gr", vim.lsp.buf.references, opts) -- Go to references
+            vim.keymap.set("n", "gi", vim.lsp.buf.implementation, opts) -- Go to implementation
+            vim.keymap.set("n", "K", vim.lsp.buf.hover, opts) -- Show documentation
+
+            -- LSP Actions
+            vim.keymap.set("n", "<leader>sh", vim.lsp.buf.signature_help, opts) -- Show signature
+            vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, opts) -- Rename symbol eg. func
+            vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, opts) -- Show actions
+        end
+
+
+        local lspconfig = require("lspconfig")
+        for _, server in ipairs({ "pyright", "gopls", "lua_ls" }) do
+            lspconfig[server].setup({
+                capabilities = capabilities,
+                on_attach = on_attach,
+            })
+        end
+
         local cmp_select = { behavior = cmp.SelectBehavior.Select }
 
         cmp.setup({
