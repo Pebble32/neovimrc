@@ -21,5 +21,6 @@ vim.opt.inccommand = "split"
 vim.opt.ignorecase = true
 
 vim.opt.termguicolors = true
+vim.opt.foldmethod="indent"
 
 vim.g.mapleader = " "
