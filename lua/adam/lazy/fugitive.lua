@@ -16,6 +16,12 @@ return {
 
                 local bufnr = vim.api.nvim_get_current_buf()
                 local opts = {buffer = bufnr, remap = false}
+
+                vim.keymap.set("n", "<leader>ga", ":Git add %<CR>", vim.tbl_extend("force", opts, { desc = "Stage current file" }))
+                vim.keymap.set("n", "<leader>gA", ":Git add .<CR>", vim.tbl_extend("force", opts, { desc = "Stage all changes" }))
+                vim.keymap.set("n", "<leader>gc", ":Git commit<CR>", vim.tbl_extend("force", opts, { desc = "Commit changes" }))
+
+
                 vim.keymap.set("n", "<leader>p", function()
                     vim.cmd.Git('push')
                 end, opts)
