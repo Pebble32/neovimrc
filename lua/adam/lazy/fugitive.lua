@@ -19,6 +19,7 @@ return {
 
                 vim.keymap.set("n", "<leader>ga", ":Git add %<CR>", vim.tbl_extend("force", opts, { desc = "Stage current file" }))
                 vim.keymap.set("n", "<leader>gA", ":Git add .<CR>", vim.tbl_extend("force", opts, { desc = "Stage all changes" }))
+                -- vim.keymap.set("n", "<leader>gc", ":Gdiffsplit",vim.tbl_extend("force", opts, { desc = "Show diff in split screen" }))
                 vim.keymap.set("n", "<leader>gc", ":Git commit<CR>", vim.tbl_extend("force", opts, { desc = "Commit changes" }))
 
 
