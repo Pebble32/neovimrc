@@ -30,7 +30,7 @@ return {
                 "rust_analyzer", -- Rust
                 "pyright", -- Python
                 "gopls", -- Go
-                -- "clangd" -- C/C++
+                "clangd" -- C/C++
                 -- "jdtls", -- Java
             },
             handlers = {
