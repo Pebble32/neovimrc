@@ -47,6 +47,14 @@ return {
             vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, opts)       -- Code actions
         end
 
+        -- Configure LSP hover behavior to prevent entering the window
+        vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(
+            vim.lsp.handlers.hover, {
+                border = "rounded",
+                focusable = false,  -- This prevents entering the hover window
+            }
+        )
+
         require("mason-lspconfig").setup({
             ensure_installed = {
                 "lua_ls",        -- Lua
@@ -54,7 +62,7 @@ return {
                 "pyright",       -- Python
                 "gopls",         -- Go
                 "clangd",        -- C/C++
-                -- "jdtls",      -- Java 
+                "jdtls",         -- Java 
             },
             handlers = {
                 -- Default handler for all servers
