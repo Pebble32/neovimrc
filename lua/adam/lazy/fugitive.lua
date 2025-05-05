@@ -19,7 +19,6 @@ return {
 
                 vim.keymap.set("n", "<leader>ga", ":Git add %<CR>", vim.tbl_extend("force", opts, { desc = "Stage current file" }))
                 vim.keymap.set("n", "<leader>gA", ":Git add .<CR>", vim.tbl_extend("force", opts, { desc = "Stage all changes" }))
-                -- vim.keymap.set("n", "<leader>gc", ":Gdiffsplit",vim.tbl_extend("force", opts, { desc = "Show diff in split screen" }))
                 vim.keymap.set("n", "<leader>gc", ":Git commit<CR>", vim.tbl_extend("force", opts, { desc = "Commit changes" }))
 
 
@@ -27,13 +26,13 @@ return {
                     vim.cmd.Git('push')
                 end, opts)
 
-                -- rebase always
+                -- Rebase always
                 vim.keymap.set("n", "<leader>P", function()
                     vim.cmd.Git({'pull',  '--rebase'})
                 end, opts)
 
-                -- NOTE: It allows me to easily set the branch i am pushing and any tracking
-                -- needed if i did not set the branch up correctly
+                -- NOTE: It allows me to easily set the branch I am pushing and any tracking
+                -- needed if I did not set the branch up correctly
                 -- vim.keymap.set("n", "<leader>t", ":Git push -u origin ", opts);
             end,
         })
