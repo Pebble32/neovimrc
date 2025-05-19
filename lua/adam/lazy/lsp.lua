@@ -35,25 +35,19 @@ return {
             local opts = { buffer = bufnr, silent = true, noremap = true }
 
             -- LSP Navigation
-            vim.keymap.set("n", "gd", vim.lsp.buf.definition, opts)      -- Go to definition
-            vim.keymap.set("n", "gD", vim.lsp.buf.declaration, opts)       -- Go to declaration
-            vim.keymap.set("n", "gr", vim.lsp.buf.references, opts)         -- Go to references
-            vim.keymap.set("n", "gi", vim.lsp.buf.implementation, opts)     -- Go to implementation
-            vim.keymap.set("n", "K", vim.lsp.buf.hover, opts)               -- Show documentation
+            vim.keymap.set("n", "gd", function() vim.lsp.buf.definition() end, opts)
+            vim.keymap.set("n", "gD", function() vim.lsp.buf.declaration() end, opts)
+            vim.keymap.set("n", "gr", function() vim.lsp.buf.references() end, opts)
+            vim.keymap.set("n", "gi", function() vim.lsp.buf.implementation() end, opts)
+            vim.keymap.set("n", "K", function() vim.lsp.buf.hover({
+                border = "rounded",
+            }) end, opts)
 
             -- LSP Actions
-            vim.keymap.set("n", "<leader>sh", vim.lsp.buf.signature_help, opts)  -- Signature help
-            vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, opts)            -- Rename symbol
-            vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, opts)       -- Code actions
+            vim.keymap.set("n", "<leader>sh", function() vim.lsp.buf.signature_help() end, opts)
+            vim.keymap.set("n", "<leader>rn", function() vim.lsp.buf.rename() end, opts)
+            vim.keymap.set("n", "<leader>ca", function() vim.lsp.buf.code_action() end, opts)
         end
-
-        -- Configure LSP hover behavior to prevent entering the window
-        vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(
-            vim.lsp.handlers.hover, {
-                border = "rounded",
-                focusable = false,  -- This prevents entering the hover window
-            }
-        )
 
         require("mason-lspconfig").setup({
             ensure_installed = {
@@ -72,7 +66,7 @@ return {
                         on_attach = on_attach,
                     })
                 end,
-                -- Custom handler for Pyright to add extra paths
+                -- Custom handler for pyright to add extra paths
                 ["pyright"] = function()
                     require("lspconfig").pyright.setup({
                         capabilities = capabilities,
@@ -104,6 +98,22 @@ return {
         })
 
         local cmp_select = { behavior = cmp.SelectBehavior.Select }
+
+        vim.diagnostic.config({
+            virtual_text     = true,     -- enable inline diagnostics (opt‑in in 0.11+) :contentReference[oaicite:22]{index=22}
+            signs            = true,     -- show gutter icons :contentReference[oaicite:23]{index=23}
+            underline        = true,     -- underline code with diagnostics :contentReference[oaicite:24]{index=24}
+            update_in_insert = false,    -- do not update diagnostics while typing :contentReference[oaicite:25]{index=25}
+            severity_sort    = true,     -- sort diagnostics by severity :contentReference[oaicite:26]{index=26}
+            float = {
+                focusable = false,
+                style     = "minimal",
+                border    = "rounded",
+                source    = "always",  -- always show source (e.g., pyright) :contentReference[oaicite:27]{index=27}
+                header    = "",
+                prefix    = "",
+            },
+        })
 
         cmp.setup({
             snippet = {
