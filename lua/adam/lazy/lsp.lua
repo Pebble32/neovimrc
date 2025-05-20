@@ -30,25 +30,71 @@ return {
         -- Set up Mason
         require("mason").setup()
 
-        -- Define the on_attach function to map keybindings after the LSP attaches to a buffer
-        local function on_attach(client, bufnr)
-            local opts = { buffer = bufnr, silent = true, noremap = true }
+        -- Set global border style for hover, signature help, etc.
+        vim.o.winborder = "rounded"
 
-            -- LSP Navigation
-            vim.keymap.set("n", "gd", function() vim.lsp.buf.definition() end, opts)
-            vim.keymap.set("n", "gD", function() vim.lsp.buf.declaration() end, opts)
-            vim.keymap.set("n", "gr", function() vim.lsp.buf.references() end, opts)
-            vim.keymap.set("n", "gi", function() vim.lsp.buf.implementation() end, opts)
-            vim.keymap.set("n", "K", function() vim.lsp.buf.hover({
+        -- Configure diagnostics - enable virtual text which is now disabled by default in 0.11
+        vim.diagnostic.config({
+            virtual_text = true,
+            float = {
+                focusable = false,
+                style = "minimal",
                 border = "rounded",
-            }) end, opts)
+                source = "always",
+                header = "",
+                prefix = "",
+            },
+        })
 
-            -- LSP Actions
-            vim.keymap.set("n", "<leader>sh", function() vim.lsp.buf.signature_help() end, opts)
-            vim.keymap.set("n", "<leader>rn", function() vim.lsp.buf.rename() end, opts)
-            vim.keymap.set("n", "<leader>ca", function() vim.lsp.buf.code_action() end, opts)
-        end
+        -- In Neovim 0.11, the best practice is to use LspAttach autocmd for keybindings
+        -- This ensures custom mappings work correctly with the new default mappings
+        vim.api.nvim_create_autocmd('LspAttach', {
+            group = vim.api.nvim_create_augroup('UserLspConfig', { clear = true }),
+            callback = function(event)
+                local client = vim.lsp.get_client_by_id(event.data.client_id)
+                local bufnr = event.buf
+                
+                -- Define buffer-local mappings
+                local map_opts = { buffer = bufnr, noremap = true, silent = true }
+                
+                -- LSP Navigation - custom keybindings
+                -- gd is already mapped by default to vim.lsp.buf.definition via tagfunc,
+                -- but we set it explicitly for Icelandic keyboards where C-] is problematic
+                vim.keymap.set("n", "gd", vim.lsp.buf.definition, map_opts)
+                vim.keymap.set("n", "gD", vim.lsp.buf.declaration, map_opts)
+                
+                -- LSP Actions - additional custom mappings alongside global defaults
+                vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, map_opts)           -- Custom rename
+                vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, map_opts)      -- Custom code action 
+                vim.keymap.set("n", "<leader>sh", vim.lsp.buf.signature_help, map_opts)   -- Custom signature help
+                
+                -- Custom leader-based navigation that complements the global gr* mappings
+                vim.keymap.set("n", "<leader>gd", vim.lsp.buf.definition, map_opts)       -- Leader-based definition
+                vim.keymap.set("n", "<leader>gi", vim.lsp.buf.implementation, map_opts)   -- Leader-based implementation
+                vim.keymap.set("n", "<leader>gr", vim.lsp.buf.references, map_opts)       -- Leader-based references
 
+                -- Reminder: Neovim 0.11 already has these GLOBAL mappings (no need to set them):
+                -- "grn" in Normal mode for vim.lsp.buf.rename()
+                -- "gra" in Normal and Visual mode for vim.lsp.buf.code_action()
+                -- "grr" in Normal mode for vim.lsp.buf.references()
+                -- "gri" in Normal mode for vim.lsp.buf.implementation()
+                -- "gO" in Normal mode for vim.lsp.buf.document_symbol()
+                -- CTRL-S in Insert mode for vim.lsp.buf.signature_help()
+                -- K is already mapped to vim.lsp.buf.hover() unless keywordprg was customized
+                
+                -- Enable auto-completion if needed (optional, commented out by default)
+                -- if client.supports_method('textDocument/completion') then
+                --     vim.lsp.completion.enable(true, client.id, bufnr, { autotrigger = true })
+                -- end
+                
+                -- Enable inlay hints if supported (optional, commented out by default)
+                -- if client.supports_method('textDocument/inlayHint') then
+                --     vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
+                -- end
+            end
+        })
+
+        -- Set up mason-lspconfig with the new position_encoding requirement
         require("mason-lspconfig").setup({
             ensure_installed = {
                 "lua_ls",        -- Lua
@@ -63,14 +109,16 @@ return {
                 function(server_name)
                     require("lspconfig")[server_name].setup({
                         capabilities = capabilities,
-                        on_attach = on_attach,
+                        -- No need to specify on_attach since we're using the LspAttach autocmd
+                        -- We now need to specify position_encoding with Neovim 0.11
+                        position_encoding = "utf-16", -- Most common encoding used by LSP servers
                     })
                 end,
-                -- Custom handler for pyright to add extra paths
+                -- Custom handler for Pyright to add extra paths
                 ["pyright"] = function()
                     require("lspconfig").pyright.setup({
                         capabilities = capabilities,
-                        on_attach = on_attach,
+                        position_encoding = "utf-16",
                         settings = {
                             python = {
                                 analysis = {
@@ -84,7 +132,7 @@ return {
                 ["lua_ls"] = function()
                     require("lspconfig").lua_ls.setup({
                         capabilities = capabilities,
-                        on_attach = on_attach,
+                        position_encoding = "utf-16",
                         settings = {
                             Lua = {
                                 diagnostics = {
@@ -98,22 +146,6 @@ return {
         })
 
         local cmp_select = { behavior = cmp.SelectBehavior.Select }
-
-        vim.diagnostic.config({
-            virtual_text     = true,     -- enable inline diagnostics (opt‑in in 0.11+) :contentReference[oaicite:22]{index=22}
-            signs            = true,     -- show gutter icons :contentReference[oaicite:23]{index=23}
-            underline        = true,     -- underline code with diagnostics :contentReference[oaicite:24]{index=24}
-            update_in_insert = false,    -- do not update diagnostics while typing :contentReference[oaicite:25]{index=25}
-            severity_sort    = true,     -- sort diagnostics by severity :contentReference[oaicite:26]{index=26}
-            float = {
-                focusable = false,
-                style     = "minimal",
-                border    = "rounded",
-                source    = "always",  -- always show source (e.g., pyright) :contentReference[oaicite:27]{index=27}
-                header    = "",
-                prefix    = "",
-            },
-        })
 
         cmp.setup({
             snippet = {
@@ -133,18 +165,6 @@ return {
             }, {
                 { name = "buffer" },
             }),
-        })
-
-        -- Configure diagnostics
-        vim.diagnostic.config({
-            float = {
-                focusable = false,
-                style = "minimal",
-                border = "rounded",
-                source = "always",
-                header = "",
-                prefix = "",
-            },
         })
     end
 }
