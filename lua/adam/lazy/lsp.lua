@@ -53,21 +53,17 @@ return {
             callback = function(event)
                 local client = vim.lsp.get_client_by_id(event.data.client_id)
                 local bufnr = event.buf
-                
                 -- Define buffer-local mappings
                 local map_opts = { buffer = bufnr, noremap = true, silent = true }
-                
                 -- LSP Navigation - custom keybindings
                 -- gd is already mapped by default to vim.lsp.buf.definition via tagfunc,
                 -- but we set it explicitly for Icelandic keyboards where C-] is problematic
                 vim.keymap.set("n", "gd", vim.lsp.buf.definition, map_opts)
                 vim.keymap.set("n", "gD", vim.lsp.buf.declaration, map_opts)
-                
                 -- LSP Actions - additional custom mappings alongside global defaults
                 vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, map_opts)           -- Custom rename
                 vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, map_opts)      -- Custom code action 
                 vim.keymap.set("n", "<leader>sh", vim.lsp.buf.signature_help, map_opts)   -- Custom signature help
-                
                 -- Custom leader-based navigation that complements the global gr* mappings
                 vim.keymap.set("n", "<leader>gd", vim.lsp.buf.definition, map_opts)       -- Leader-based definition
                 vim.keymap.set("n", "<leader>gi", vim.lsp.buf.implementation, map_opts)   -- Leader-based implementation
@@ -80,13 +76,13 @@ return {
                 -- "gri" in Normal mode for vim.lsp.buf.implementation()
                 -- "gO" in Normal mode for vim.lsp.buf.document_symbol()
                 -- CTRL-S in Insert mode for vim.lsp.buf.signature_help()
+
                 -- K is already mapped to vim.lsp.buf.hover() unless keywordprg was customized
-                
                 -- Enable auto-completion if needed (optional, commented out by default)
                 -- if client.supports_method('textDocument/completion') then
                 --     vim.lsp.completion.enable(true, client.id, bufnr, { autotrigger = true })
                 -- end
-                
+
                 -- Enable inlay hints if supported (optional, commented out by default)
                 -- if client.supports_method('textDocument/inlayHint') then
                 --     vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
